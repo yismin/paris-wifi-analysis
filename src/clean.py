@@ -62,7 +62,7 @@ df['time_of_day'] = pd.cut(
 def device_type(x):
     x = str(x).lower()
     if any(k in x for k in ["smart", "mobile"]): return "Mobile"
-    if any(k in x for k in ["desktop", "Ordinateur"]): return "Desktop"
+    if any(k in x for k in ["desktop", "ordinateur"]): return "Desktop"
     return "Other"
 
 df['device_category'] = df['device_portal_format'].apply(device_type)
@@ -85,9 +85,9 @@ def classify_location(row):
     arr = str(row['arrondissement'])
 
     checks = [
-        (['victor hugo','musee','musée','crypte','tour saint jacques','invalides','pantheon','panthéon'],
+        (['hugo','musee','musée','crypte','tour saint jacques','invalides','pantheon','panthéon'],
          'Cultural-Tourist'),
-        (['hdv','parvis','mairie','hotel de ville'], 'High-Traffic'),
+        (['hdv','parvis','mairie','hotel'], 'High-Traffic'),
         (['bib','bibliotheque','bibliothèque'], 'Library-Service')
     ]
 

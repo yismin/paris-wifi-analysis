@@ -2,12 +2,8 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 from dotenv import load_dotenv
 import os
-
-# =======================
 # 1. Load environment vars
-# =======================
 load_dotenv()
-
 DB_CONFIG = {
     'dbname': os.getenv('DB_NAME'),
     'user': os.getenv('DB_USER'),
@@ -15,29 +11,16 @@ DB_CONFIG = {
     'host': os.getenv('DB_HOST', 'localhost'),
     'port': int(os.getenv('DB_PORT', 5432))
 }
-
 engine = create_engine(
     f"postgresql://{DB_CONFIG['user']}:{DB_CONFIG['password']}@{DB_CONFIG['host']}:{DB_CONFIG['port']}/{DB_CONFIG['dbname']}"
 )
-
-# =======================
 # 2. Load CSV
-# =======================
 csv_path = r"c:/Users/yasmi/projects/paris-wifi-analysis/data/raw/paris_wifi_20251120_170502.csv"
-
-print("📥 Loading CSV...")
 df = pd.read_csv(csv_path)
-print(f"Loaded {len(df):,} rows and {len(df.columns)} columns")
-
-print("Columns:", df.columns.tolist())
-
-# =======================
 # 3. Drop table if exists
-# =======================
 drop_sql = """
 DROP TABLE IF EXISTS wifi_sessions;
 """
-
 create_sql = """
 CREATE TABLE wifi_sessions (
     id BIGINT,
@@ -69,27 +52,9 @@ CREATE TABLE wifi_sessions (
     created_at TIMESTAMP
 );
 """
-
 with engine.begin() as conn:
-    print("🗑 Dropping old table (if exists)...")
     conn.execute(text(drop_sql))
-
-    print("🧱 Creating new table...")
     conn.execute(text(create_sql))
-
-# =======================
 # 4. Insert CSV into SQL
-# =======================
-print("📤 Importing data into PostgreSQL...")
-
-df.to_sql(
-    "wifi_sessions",
-    engine,
-    if_exists="append",
-    index=False,
-    method="multi",
-    chunksize=5000
-)
-
-print("\n✅ Import complete!")
-print(f"Table now contains: {len(df):,} rows")
+df.to_sql("wifi_sessions",engine,if_exists="append",index=False,method="multi",chunksize=5000)
+print(f"\nImport complete! Table now contains: {len(df):,} rows")
